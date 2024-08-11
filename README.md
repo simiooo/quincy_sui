@@ -1,16 +1,8 @@
 # quincy_sui
 
-A new Flutter project.
+A quincy client ui
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![屏幕截图 2024-08-12 000208](https://github.com/user-attachments/assets/f7e99aea-50c2-4a1f-b359-130b922622c0)
+![屏幕截图 2024-08-12 000200](https://github.com/user-attachments/assets/5f17d154-d094-4769-be05-317581a50945)
+![屏幕截图 2024-08-12 000120](https://github.com/user-attachments/assets/b16c0d55-7df3-4531-a217-01c7f6f7a903)
