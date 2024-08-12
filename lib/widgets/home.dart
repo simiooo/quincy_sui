@@ -24,9 +24,19 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   late Directory appDocumentsDir;
 
-  Map<String, Quincy>? quincyRuntime = {};
+  Map<String, Quincy?>? quincyRuntime = {};
 
   List<Map<String, dynamic>> configDocList = [];
+
+  @override
+  void dispose() {
+    super.dispose();
+    quincyRuntime?.entries.forEach((e) {
+      if (e.value != null) {
+        e.value!.stop();
+      }
+    });
+  }
 
   getConfigList() async {
     appDocumentsDir = await getApplicationDocumentsDirectory();

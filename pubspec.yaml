@@ -52,6 +52,7 @@ dependencies:
   system_tray: ^2.0.3
   super_drag_and_drop: ^0.7.0
   super_clipboard: ^0.7.0
+  mustache_template: ^2.0.0
 
 dev_dependencies:
   flutter_test:

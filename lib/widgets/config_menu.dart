@@ -18,7 +18,7 @@ import 'package:window_manager/window_manager.dart';
 
 class ConfigMenu extends StatefulWidget {
   List<Map<String, dynamic>>? confList;
-  Map<String, Quincy>? quincyRuntime;
+  Map<String, Quincy?>? quincyRuntime;
   Directory? confDir;
   void Function(String key)? onDelete;
   void Function()? onUpdated;
@@ -64,7 +64,6 @@ class _ConfigMenuState extends State<ConfigMenu> with WindowListener {
               if (true) {
                 
                 reader.getFile(tomlFormat, (file) async {
-                    print(file);
                     var content = String.fromCharCodes(await file.readAll());
                     TomlDocument.parse(content);
                     await writeConf(content, null);
@@ -73,7 +72,6 @@ class _ConfigMenuState extends State<ConfigMenu> with WindowListener {
                     }
                     widget.onUpdated!();
                 }, onError: (error) async {
-                  print(error);
                   await displayInfoBar(context, builder: (context, close) {
                     return InfoBar(
                       title: const Text('读取文件错误'),
