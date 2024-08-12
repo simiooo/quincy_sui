@@ -49,6 +49,9 @@ dependencies:
   crypto: ^3.0.3
   flutter_bloc: ^8.1.6
   flutter_launcher_icons: ^0.13.1
+  system_tray: ^2.0.3
+  super_drag_and_drop: ^0.7.0
+  super_clipboard: ^0.7.0
 
 dev_dependencies:
   flutter_test:

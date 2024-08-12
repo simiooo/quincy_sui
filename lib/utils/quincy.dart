@@ -25,6 +25,9 @@ class Quincy {
   Quincy({this.runtimePath, required this.configPath}) {
     create();
   }
+  String removeAnsiEscapeCodes(String text) {
+    return text.replaceAll(RegExp(r'\x1B\[([0-9;]*[mGKH])'), '');
+  }
 
   String getBinaryName() {
     if (Platform.isWindows) {
@@ -38,10 +41,13 @@ class Quincy {
     }
   }
 
-  List<void Function(List<String> logs, List<String> errorLogs)> logHandlerList = [];
-  onLogChanged(void Function(List<String> logs, List<String> errorLogs) loghandler) {
+  List<void Function(List<String> logs, List<String> errorLogs)>
+      logHandlerList = [];
+  onLogChanged(
+      void Function(List<String> logs, List<String> errorLogs) loghandler) {
     logHandlerList.add(loghandler);
   }
+
   createExcutableFile(String targetPath) async {
     // 检查文件是否已经存在
     if (!await File(targetPath).exists()) {
@@ -112,8 +118,8 @@ class Quincy {
   }
 
   start() {}
-  stop() {
-    runtime?.kill(ProcessSignal.sigstop);
+  stop() async {
+   runtime?.kill(ProcessSignal.sigstop);
   }
 
   restart() {
@@ -126,21 +132,19 @@ class Quincy {
 
   initLogs() {
     runtime?.stdout.transform(utf8.decoder).forEach((content) {
-      logs.add(content);
-      for(var cb in logHandlerList) {
+      logs.add(removeAnsiEscapeCodes(content));
+      for (var cb in logHandlerList) {
         cb(logs, errorLogs);
       }
-      
-    } );
+    });
   }
 
   initErrorLogs() {
     runtime?.stderr.transform(utf8.decoder).forEach((content) {
-      errorLogs.add(content);
-      for(var cb in logHandlerList) {
+      errorLogs.add(removeAnsiEscapeCodes(content));
+      for (var cb in logHandlerList) {
         cb(logs, errorLogs);
       }
-      
     });
   }
 }

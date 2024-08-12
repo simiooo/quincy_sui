@@ -7,9 +7,12 @@ import 'package:flutter/material.dart'
     hide Tooltip, Colors, FilledButton, showDialog;
 import 'package:path_provider/path_provider.dart';
 import 'package:quincy_sui/utils/quincy.dart';
+import 'package:quincy_sui/utils/wiretConfi.dart';
 import 'package:quincy_sui/widgets/config_menu.dart';
 import 'package:toml/toml.dart';
 import 'package:window_manager/window_manager.dart';
+
+Directory? confDir;
 
 class Home extends StatefulWidget {
   Home({Key? key}) : super(key: key);
@@ -20,9 +23,9 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   late Directory appDocumentsDir;
-  
+
   Map<String, Quincy>? quincyRuntime = {};
-  Directory? confDir;
+
   List<Map<String, dynamic>> configDocList = [];
 
   getConfigList() async {
@@ -93,6 +96,18 @@ class _HomeState extends State<Home> {
             children: [
               Expanded(
                   child: ConfigMenu(
+                onDelete: (String path) async {
+                  try {
+                    if (quincyRuntime?[path] != null) {
+                      quincyRuntime?[path]?.stop();
+                      quincyRuntime?.remove(path);
+                    }
+                    await File(path).delete();
+                    await getConfigList();
+                  } catch (e) {
+                    print(e);
+                  }
+                },
                 confDir: confDir,
                 confList: configDocList,
                 quincyRuntime: quincyRuntime,
@@ -113,7 +128,10 @@ class _HomeState extends State<Home> {
                     quincyRuntime![key]!.restart();
                   }
                 },
-                onChanged: (doc) {
+                onUpdated: () {
+                  getConfigList();
+                },
+                onChanged: (doc) async {
                   if (confDir == null) {
                     showDialog(
                         context: context,
@@ -135,10 +153,7 @@ class _HomeState extends State<Home> {
                     return;
                   }
                   var content = doc.toString();
-                  var name = sha1.convert(utf8.encode(content));
-                  var file = new File(
-                      "${confDir!.path}${Platform.pathSeparator}quincy_conf_${name}.toml");
-                  file.writeAsString(content);
+                  await writeConf(content, confDir);
                   getConfigList();
                 },
               ))

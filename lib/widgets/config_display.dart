@@ -1,19 +1,22 @@
 import 'dart:math';
 
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter/material.dart' hide showDialog, Divider, Colors;
+import 'package:flutter/material.dart'
+    hide IconButton, showDialog, Divider, Colors;
 import 'package:quincy_sui/utils/quincy.dart';
 import 'package:toml/toml.dart';
 
 class ConfigDisplay extends StatelessWidget {
   Map<String, dynamic> content = {};
   TomlDocument doc;
+  void Function(String key)? onDelete;
   Quincy? runtime;
   String path;
   void Function(TomlDocument doc, String path)? onConnect;
   ConfigDisplay(
       {Key? key,
       this.runtime,
+      this.onDelete,
       required this.content,
       required this.path,
       this.onConnect,
@@ -38,7 +41,14 @@ class ConfigDisplay extends StatelessWidget {
       ];
     } else if (runtime?.status == QuincyRuntimeStatus.active) {
       return [
-        Button(child: Text('断开'), onPressed: () {}),
+        Button(
+            child: Text('断开'),
+            onPressed: () {
+              if (runtime == null) {
+                return;
+              }
+              runtime?.stop();
+            }),
         SizedBox(
           width: 12,
         ),
@@ -102,11 +112,11 @@ class ConfigDisplay extends StatelessWidget {
                   isLabelVisible: runtime?.status == QuincyRuntimeStatus.failed,
                   child: Button(
                       child: Text('日志'),
-                      onPressed: () {
-                        print(runtime);
-                        showDialog(
+                      onPressed: () async {
+                        // print(runtime);
+                        await showDialog(
                             context: context,
-                            builder: (c) {
+                            builder: (context) {
                               return ContentDialog(
                                 constraints: BoxConstraints(
                                     maxWidth: MediaQuery.sizeOf(context).width),
@@ -159,10 +169,14 @@ class ConfigDisplay extends StatelessWidget {
                 ),
               ],
             ),
-            runtime?.status == QuincyRuntimeStatus.active ? Icon(
-              FluentIcons.plug_connected,
-              color: Colors.green,
-            ) : runtime?.status == QuincyRuntimeStatus.failed ? Icon(FluentIcons.critical_error_solid, color: Colors.red) : Icon(FluentIcons.plug_disconnected),
+            runtime?.status == QuincyRuntimeStatus.active
+                ? Icon(
+                    FluentIcons.plug_connected,
+                    color: Colors.green,
+                  )
+                : runtime?.status == QuincyRuntimeStatus.failed
+                    ? Icon(FluentIcons.critical_error_solid, color: Colors.red)
+                    : Icon(FluentIcons.plug_disconnected),
             SizedBox(
               height: 24,
             ),
@@ -197,7 +211,22 @@ class ConfigDisplay extends StatelessWidget {
               height: 30,
               width: MediaQuery.sizeOf(context).width,
               child: Row(
-                children: showButtons(),
+                children: [
+                  ...showButtons(),
+                  SizedBox(
+                    width: 16,
+                  ),
+                  IconButton(
+                      icon: Icon(
+                        color: Colors.red,
+                        Icons.delete),
+                      onPressed: () {
+                        if (onDelete == null) {
+                          return;
+                        }
+                        onDelete!(path);
+                      })
+                ],
               ),
             )
           ],

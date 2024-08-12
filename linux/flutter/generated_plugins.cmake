@@ -3,7 +3,10 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  irondash_engine_context
   screen_retriever
+  super_native_extensions
+  system_tray
   tray_manager
   window_manager
 )

@@ -317,44 +317,44 @@ class _ConfigFormState extends State<ConfigForm> {
                     },
                   ),
                 ),
-                InfoLabel(
-                  label: 'Enter connection timeout:',
-                  child: FormBuilderField(
-                    name: 'connection_timeout',
-                    builder: (FormFieldState<dynamic> field) {
-                      return TextBox(
-                        onChanged: (value) {
-                          field.didChange(value);
-                        },
-                        decoration: BoxDecoration(
-                          border: field.hasError
-                              ? Border.all(color: Colors.red)
-                              : null,
-                        ),
-                        placeholder: 'Connection timeout ( default: 30s )',
-                      );
-                    },
-                  ),
-                ),
-                InfoLabel(
-                  label: 'Enter keep alive interval:',
-                  child: FormBuilderField(
-                    name: 'keep_alive_interval',
-                    builder: (FormFieldState<dynamic> field) {
-                      return TextBox(
-                        onChanged: (value) {
-                          field.didChange(value);
-                        },
-                        decoration: BoxDecoration(
-                          border: field.hasError
-                              ? Border.all(color: Colors.red)
-                              : null,
-                        ),
-                        placeholder: 'Keep alive interval ( default: 25s )',
-                      );
-                    },
-                  ),
-                ),
+                // InfoLabel(
+                //   label: 'Enter connection timeout:',
+                //   child: FormBuilderField(
+                //     name: 'connection_timeout',
+                //     builder: (FormFieldState<dynamic> field) {
+                //       return TextBox(
+                //         onChanged: (value) {
+                //           field.didChange(value);
+                //         },
+                //         decoration: BoxDecoration(
+                //           border: field.hasError
+                //               ? Border.all(color: Colors.red)
+                //               : null,
+                //         ),
+                //         placeholder: 'Connection timeout ( default: 30s )',
+                //       );
+                //     },
+                //   ),
+                // ),
+                // InfoLabel(
+                //   label: 'Enter keep alive interval:',
+                //   child: FormBuilderField(
+                //     name: 'keep_alive_interval',
+                //     builder: (FormFieldState<dynamic> field) {
+                //       return TextBox(
+                //         onChanged: (value) {
+                //           field.didChange(value);
+                //         },
+                //         decoration: BoxDecoration(
+                //           border: field.hasError
+                //               ? Border.all(color: Colors.red)
+                //               : null,
+                //         ),
+                //         placeholder: 'Keep alive interval ( default: 25s )',
+                //       );
+                //     },
+                //   ),
+                // ),
                 InfoLabel(
                   label: 'Enter send_buffer_size:',
                   child: FormBuilderField(
@@ -453,8 +453,8 @@ class _ConfigFormState extends State<ConfigForm> {
                   },
                   "connection": {
                     "mtu": payload["mtu"] ?? 1400,
-                    "connection_timeout": payload["connection_timeout"] ?? "30s",
-                    "keep_alive_interval": payload["keep_alive_interval"] ?? "25s",
+                    // "connection_timeout": payload["connection_timeout"] ?? "30s",
+                    // "keep_alive_interval": payload["keep_alive_interval"] ?? "25s",
                     "send_buffer_size": payload["send_buffer_size"] ?? 2097152,
                     "recv_buffer_size": payload["recv_buffer_size"] ?? 2097152,
                   },
