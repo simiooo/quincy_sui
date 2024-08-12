@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart'
     hide Tooltip, Colors, FilledButton, showDialog;
@@ -68,13 +69,13 @@ class _HomeState extends State<Home> {
       final result = await showDialog<String>(
         context: context,
         builder: (context) => ContentDialog(
-          title: const Text('Error'),
+          title: Text(context.tr('Error')),
           content: Text(
             e.toString(),
           ),
           actions: [
             FilledButton(
-              child: const Text('Confirm'),
+              child: Text(context.tr('Confirm')),
               onPressed: () => Navigator.pop(context, 'User canceled dialog'),
             ),
           ],
@@ -147,13 +148,13 @@ class _HomeState extends State<Home> {
                         context: context,
                         builder: (context) {
                           return ContentDialog(
-                            title: const Text('Error'),
+                            title: Text(context.tr('Error')),
                             content: Text(
-                              'Configuration directory not found.',
+                              context.tr('Configuration directory not found.'),
                             ),
                             actions: [
                               FilledButton(
-                                child: const Text('Confirm'),
+                                child: Text(context.tr('Confirm')),
                                 onPressed: () => Navigator.pop(
                                     context, 'User canceled dialog'),
                               ),

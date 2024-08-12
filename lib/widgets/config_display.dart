@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart'
     hide IconButton, showDialog, Divider, Colors;
@@ -23,11 +24,11 @@ class ConfigDisplay extends StatelessWidget {
       required this.doc})
       : super(key: key);
 
-  List<Widget> showButtons() {
+  List<Widget> showButtons(BuildContext context) {
     if (runtime?.status == QuincyRuntimeStatus.stoped) {
       return [
         Button(
-            child: Text('连接'),
+            child: Text(context.tr('连接')),
             onPressed: () {
               if (onConnect == null) {
                 return;
@@ -37,12 +38,12 @@ class ConfigDisplay extends StatelessWidget {
         SizedBox(
           width: 12,
         ),
-        Button(child: Text('编辑'), onPressed: () {}),
+        Button(child: Text(context.tr('编辑')), onPressed: () {}),
       ];
     } else if (runtime?.status == QuincyRuntimeStatus.active) {
       return [
         Button(
-            child: Text('断开'),
+            child: Text(context.tr('断开')),
             onPressed: () {
               if (runtime == null) {
                 return;
@@ -52,12 +53,12 @@ class ConfigDisplay extends StatelessWidget {
         SizedBox(
           width: 12,
         ),
-        Button(child: Text('编辑'), onPressed: () {}),
+        Button(child: Text(context.tr('编辑')), onPressed: () {}),
       ];
     } else if (runtime?.status == QuincyRuntimeStatus.failed) {
       return [
         Button(
-            child: Text('重新连接'),
+            child: Text(context.tr('重新连接')),
             onPressed: () {
               if (onConnect == null) {
                 return;
@@ -67,12 +68,12 @@ class ConfigDisplay extends StatelessWidget {
         SizedBox(
           width: 12,
         ),
-        Button(child: Text('编辑'), onPressed: () {}),
+        Button(child: Text(context.tr('编辑')), onPressed: () {}),
       ];
     } else {
       return [
         Button(
-            child: Text('连接'),
+            child: Text(context.tr('连接')),
             onPressed: () {
               if (onConnect == null) {
                 return;
@@ -82,7 +83,7 @@ class ConfigDisplay extends StatelessWidget {
         SizedBox(
           width: 12,
         ),
-        Button(child: Text('编辑'), onPressed: () {}),
+        Button(child: Text(context.tr('编辑')), onPressed: () {}),
       ];
     }
   }
@@ -102,7 +103,7 @@ class ConfigDisplay extends StatelessWidget {
             Row(
               children: [
                 SelectableText(
-                  "连接串 : ${content["connection_string"]}",
+                  "${context.tr("连接串")} : ${content["connection_string"]}",
                   style: TextStyle(fontSize: 24),
                 ),
                 SizedBox(
@@ -111,7 +112,7 @@ class ConfigDisplay extends StatelessWidget {
                 Badge(
                   isLabelVisible: runtime?.status == QuincyRuntimeStatus.failed,
                   child: Button(
-                      child: Text('日志'),
+                      child: Text(context.tr('日志')),
                       onPressed: () async {
                         // print(runtime);
                         await showDialog(
@@ -120,10 +121,10 @@ class ConfigDisplay extends StatelessWidget {
                               return ContentDialog(
                                 constraints: BoxConstraints(
                                     maxWidth: MediaQuery.sizeOf(context).width),
-                                title: Text('日志'),
+                                title: Text(context.tr('日志')),
                                 actions: [
                                   Button(
-                                      child: Text('了解'),
+                                      child: Text(context.tr('了解')),
                                       onPressed: () {
                                         Navigator.pop(context);
                                       })
@@ -180,13 +181,13 @@ class ConfigDisplay extends StatelessWidget {
             SizedBox(
               height: 24,
             ),
-            SelectableText("认证类型 : UsersFile"),
-            SelectableText("用户名 : ${content["authentication"]["username"]}"),
+            SelectableText("${context.tr("认证类型")} : UsersFile"),
+            SelectableText("${context.tr('用户名')} : ${content["authentication"]["username"]}"),
             // SelectableText("密码 : ${content["authentication"]["password"]}"),
-            SelectableText("密码 : ********"),
+            SelectableText("${context.tr('密码')} : ********"),
             SelectableText(
-                "信任证书 : ${content["authentication"]["trusted_certificates"]}"),
-            SelectableText("路由 : ${content["network"]["routes"]}"),
+                "${context.tr('信任证书' )}: ${content["authentication"]["trusted_certificates"]}"),
+            SelectableText("${context.tr('路由')} : ${content["network"]["routes"]}"),
             SizedBox(
               height: 16,
             ),
@@ -196,14 +197,14 @@ class ConfigDisplay extends StatelessWidget {
             ),
             SelectableText("MTU : ${content["connection"]["mtu"]}"),
             SelectableText(
-                "连接超时 : ${content["connection"]["connection_timeout"]}"),
+                "${context.tr('连接超时')} : ${content["connection"]["connection_timeout"]}"),
             SelectableText(
-                "Keep Alive 间隔 : ${content["connection"]["keep_alive_interval"]}"),
+                "Keep Alive Interval : ${content["connection"]["keep_alive_interval"]}"),
             SelectableText(
-                "发送帧大小 : ${content["connection"]["send_buffer_size"]}"),
+                "${context.tr('发送帧大小')} : ${content["connection"]["send_buffer_size"]}"),
             SelectableText(
-                "接收帧大小 : ${content["connection"]["recv_buffer_size"]}"),
-            SelectableText("日志级别 : ${content["log"]["level"]}"),
+                "${context.tr('接收帧大小')} : ${content["connection"]["recv_buffer_size"]}"),
+            SelectableText("${context.tr('日志级别')} : ${content["log"]["level"]}"),
             SizedBox(
               height: 24,
             ),
@@ -212,7 +213,7 @@ class ConfigDisplay extends StatelessWidget {
               width: MediaQuery.sizeOf(context).width,
               child: Row(
                 children: [
-                  ...showButtons(),
+                  ...showButtons(context),
                   SizedBox(
                     width: 16,
                   ),

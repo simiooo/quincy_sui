@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart'
@@ -40,7 +41,7 @@ class _ConfigFormState extends State<ConfigForm> {
         height: MediaQuery.sizeOf(context).height,
         width: max(MediaQuery.sizeOf(context).width / 2, 400),
       ),
-      title: const Text('客户端配置'),
+      title: Text(context.tr('客户端配置')),
       content: Container(
         width: MediaQuery.sizeOf(context).width,
         height: MediaQuery.sizeOf(context).height,
@@ -174,7 +175,7 @@ class _ConfigFormState extends State<ConfigForm> {
                                         side: BorderSide(color: Colors.red))))
                             : null,
                         child: Text(
-                          '加入证书',
+                          context.tr('加入证书'),
                         ),
                         onPressed: () async {
                           FilePickerResult? result =
@@ -207,8 +208,8 @@ class _ConfigFormState extends State<ConfigForm> {
                   height: 80,
                   child: certPath.isEmpty
                       ? InfoBar(
-                          title: const Text('暂未获取到证书'),
-                          content: const Text('请手动添加证书'),
+                          title: Text(context.tr('暂未获取到证书')),
+                          content: Text(context.tr('请手动添加证书')),
                           severity: InfoBarSeverity.info,
                           isLong: true,
                         )
@@ -295,7 +296,7 @@ class _ConfigFormState extends State<ConfigForm> {
                   size: 18,
                 ),
                 Align(
-                  child: Text('可选'),
+                  child: Text(context.tr('可选')),
                   alignment: Alignment.centerLeft,
                 ),
                 InfoLabel(
@@ -404,15 +405,15 @@ class _ConfigFormState extends State<ConfigForm> {
                       return ComboBox(
                         items: [
                           ComboBoxItem(
-                            child: Text('Info'),
+                            child: Text(context.tr('Info')),
                             value: 'info',
                           ),
                           ComboBoxItem(
-                            child: Text('Error'),
+                            child: Text(context.tr('Error')),
                             value: 'error',
                           ),
                         ],
-                        placeholder: Text('Log level'),
+                        placeholder: Text(context.tr('Log level')),
                         onChanged: (v) {
                           field.didChange(v);
                         },
@@ -431,14 +432,14 @@ class _ConfigFormState extends State<ConfigForm> {
       ),
       actions: [
         Button(
-          child: const Text('取消'),
+          child: Text(context.tr('取消')),
           onPressed: () {
             Navigator.pop(context, 'cancel');
             // Delete file here
           },
         ),
         FilledButton(
-          child: const Text('保存'),
+          child: Text(context.tr('保存')),
           onPressed: () {
             if (_formKey.currentState?.saveAndValidate != null &&
                 _formKey.currentState!.saveAndValidate()) {
@@ -470,7 +471,7 @@ class _ConfigFormState extends State<ConfigForm> {
               showDialog(
                   context: context,
                   builder: (context) => ContentDialog(
-                        title: Text('错误'),
+                        title: Text(context.tr('错误')),
                         content: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: _formKey.currentState?.errors?.entries?.map((e) {
@@ -478,7 +479,7 @@ class _ConfigFormState extends State<ConfigForm> {
                         }).toList() ?? [],) ,
                         actions: [
                           FilledButton(
-                            child: const Text('了解'),
+                            child: Text(context.tr('了解')),
                             onPressed: () =>
                                 Navigator.pop(context, 'User canceled dialog'),
                           ),

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 
 class Top extends StatelessWidget {
@@ -18,7 +19,7 @@ class Top extends StatelessWidget {
                       ),
                   wrappedItem: CommandBarButton(
                     icon: const Icon(FluentIcons.add),
-                    label: const Text('新增'),
+                    label: Text(context.tr('新增')),
                     onPressed: () {},
                   ))
             ]),

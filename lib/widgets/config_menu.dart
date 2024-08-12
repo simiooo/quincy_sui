@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart'
     hide ButtonStyle, Colors, showDialog, Tooltip, IconButton;
@@ -74,7 +75,7 @@ class _ConfigMenuState extends State<ConfigMenu> with WindowListener {
                 }, onError: (error) async {
                   await displayInfoBar(context, builder: (context, close) {
                     return InfoBar(
-                      title: const Text('读取文件错误'),
+                      title: Text(context.tr('读取文件错误')),
                       content: Text(error.toString()),
                       action: IconButton(
                         icon: const Icon(FluentIcons.clear),
@@ -95,7 +96,7 @@ class _ConfigMenuState extends State<ConfigMenu> with WindowListener {
                   },
                   child: Container(
                     width: MediaQuery.sizeOf(context).width,
-                    child: Text('Quincy Sui'),
+                    child: Text(context.tr('Quincy Sui')),
                   ),
                 ),
                 leading: Container(child: Icon(FluentIcons.database)),
@@ -104,7 +105,7 @@ class _ConfigMenuState extends State<ConfigMenu> with WindowListener {
               footerItems: [
                 PaneItem(
                   icon: const Icon(FluentIcons.settings),
-                  title: const Text('Settings'),
+                  title: Text(context.tr('Settings')),
                   body: Container(
                     padding: EdgeInsets.symmetric(vertical: 20, horizontal: 40),
                     child: Text("Config path is in ${widget.confDir ?? "-"}"),
@@ -112,7 +113,7 @@ class _ConfigMenuState extends State<ConfigMenu> with WindowListener {
                 ),
                 PaneItemAction(
                   icon: const Icon(FluentIcons.add),
-                  title: const Text('Add New Item'),
+                  title: Text(context.tr('Add New Item')),
                   onTap: () async {
                     final result = await showDialog<String>(
                         context: context,

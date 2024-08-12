@@ -53,6 +53,8 @@ dependencies:
   super_drag_and_drop: ^0.7.0
   super_clipboard: ^0.7.0
   mustache_template: ^2.0.0
+  windows_single_instance: ^1.0.1
+  easy_localization: ^3.0.7
 
 dev_dependencies:
   flutter_test:
@@ -81,6 +83,7 @@ flutter:
   assets:
     - assets/quincy/
     - assets/images/
+    - assets/translations/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

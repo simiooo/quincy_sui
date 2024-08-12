@@ -21,7 +21,10 @@ Future<void> initSystemTray() async {
   await menu.buildFrom([
     MenuItemLabel(label: 'Show', onClicked: (menuItem) => appWindow.show()),
     MenuItemLabel(label: 'Hide', onClicked: (menuItem) => appWindow.hide()),
-    MenuItemLabel(label: 'Exit', onClicked: (menuItem) => appWindow.close()),
+    MenuItemLabel(label: 'Exit', onClicked: (menuItem) {
+      appWindow.close();
+      exit(0);
+    } ),
   ]);
 
   // set context menu

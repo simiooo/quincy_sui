@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,6 +9,7 @@ import 'package:quincy_sui/utils/tray.dart';
 import 'package:quincy_sui/widgets/home.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:windows_single_instance/windows_single_instance.dart';
 
 final GlobalKey rootKey = GlobalKey();
 var tomlFormat = const SimpleFileFormat(
@@ -18,8 +20,14 @@ var tomlFormat = const SimpleFileFormat(
     androidFormats: ["text/x-toml"],
     uniformTypeIdentifiers: ['com.barebones.bbedit.toml-source'],
     mimeTypes: ["text/x-toml"]);
-void main() async {
+void main(args) async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await EasyLocalization.ensureInitialized();
+  await WindowsSingleInstance.ensureSingleInstance(args, "quincy_sui_instance",
+      onSecondWindow: (args) {
+    print(args);
+  });
   // Must add this line.
   await windowManager.ensureInitialized();
   initSystemTray();
@@ -36,7 +44,18 @@ void main() async {
     await windowManager.show();
     await windowManager.focus();
   });
-  runApp(const MyApp());
+  runApp(
+    EasyLocalization(
+        supportedLocales: [
+          Locale('en', 'US'),
+          Locale('ja', 'JP'),
+          Locale('zh', 'CN')
+        ],
+        path:
+            'assets/translations', // <-- change the path of the translation files
+        fallbackLocale: Locale('en', 'US'),
+        child: const MyApp()),
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -56,13 +75,15 @@ class _MyAppState extends State<MyApp> {
     super.initState();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
         providers: [BlocProvider(create: (_) => ThemeModeCubit())],
         child: BlocBuilder<ThemeModeCubit, ThemeMode>(builder: (c, v) {
           return FluentApp(
+            localizationsDelegates: context.localizationDelegates,
+            supportedLocales: context.supportedLocales,
+            locale: context.locale,
             title: 'Quincy Sui',
             theme: FluentThemeData(
               accentColor: Colors.green,
