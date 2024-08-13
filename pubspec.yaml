@@ -55,6 +55,7 @@ dependencies:
   mustache_template: ^2.0.0
   windows_single_instance: ^1.0.1
   easy_localization: ^3.0.7
+  path: ^1.9.0
 
 dev_dependencies:
   flutter_test:

@@ -4,7 +4,9 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_launcher_icons/custom_exceptions.dart';
 import 'package:mustache_template/mustache.dart';
+import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quincy_sui/utils/windowsTaskXml.dart';
 
@@ -28,6 +30,15 @@ class Quincy {
   Quincy({this.runtimePath, required this.configPath}) {
     create();
   }
+
+  Quincy._createAsync({this.runtimePath, required this.configPath});
+
+  static Future<Quincy> createInstance({runtimePath, required configPath}) async {
+    Quincy component =  Quincy._createAsync(runtimePath: runtimePath, configPath: configPath);
+    await component.create();
+    return component;
+  }
+
   String removeAnsiEscapeCodes(String text) {
     return text.replaceAll(RegExp(r'\x1B\[([0-9;]*[mGKH])'), '');
   }
@@ -79,10 +90,9 @@ class Quincy {
       "arguments": "--config-path $configPath",
     });
     var appDocumentsDir = await getApplicationDocumentsDirectory();
-    var xmlTask = File(
-        '${appDocumentsDir.path}${Platform.pathSeparator}quincy_sui_task.xml');
+    var xmlTask = File(join(appDocumentsDir.path, "quincy_sui_task.xml"));
     await xmlTask.writeAsString(content);
-    return '${appDocumentsDir.path}${Platform.pathSeparator}quincy_sui_task.xml';
+    return join(appDocumentsDir.path, "quincy_sui_task.xml");
   }
 
   create() async {
@@ -90,27 +100,19 @@ class Quincy {
     try {
       if (runtimePath == null) {
         final directory = await getApplicationDocumentsDirectory();
-        runtimePath =
-            '${directory.path}${Platform.pathSeparator}${runtimeName}';
-        createExcutableFile(runtimePath!, wintunPath:  '${directory.path}${Platform.pathSeparator}wintun.dll');
+        runtimePath = join(directory.path, runtimeName);
+        createExcutableFile(runtimePath!,
+            wintunPath: join(directory.path, "wintun.dll"));
       }
-      // if (Platform.isWindows) {
-      //   // 创建任务
-      //   var taskXmlPath = await writeWindowsTaskXml();
-      //   print(taskXmlPath);
-      //   await Process.run('schtasks',
-      //       ['/create', '/tn', "quincy_sui_task", '/xml', taskXmlPath, '/f']);
-      //   runtime = await Process.start(
-      //     "schtasks",
-      //     [
-      //       '/run',
-      //       '/tn',
-      //       "quincy_sui_task",
-      //     ],
-      //   );
-      // } else {
 
-      // }
+      if (!await File(configPath).exists()) {
+        throw const FileNotFoundException("No Configuration file found");
+      }
+      if (!await File(runtimePath ?? '__no_excutable__').exists()) {
+        {
+          throw const FileNotFoundException("No excutable file found");
+        }
+      }
       runtime = await Process.start(
         runtimePath!,
         ['--config-path', configPath],
@@ -122,7 +124,6 @@ class Quincy {
       if (await runtime!.exitCode != 0) {
         throw Exception("Failed to start");
       }
-      
     } catch (e) {
       status = QuincyRuntimeStatus.failed;
     } finally {
@@ -131,16 +132,15 @@ class Quincy {
       }
       _timer = Timer.periodic(Duration(seconds: 2), (timer) async {
         var preStatus = status;
-        if(runtime == null) {
+        if (runtime == null) {
+          status = QuincyRuntimeStatus.failed;
           return;
         }
         if (await runtime!.exitCode == 0) {
           status = QuincyRuntimeStatus.stoped;
-        } else if(runtime!.exitCode != 0 ){
+        } else if (await runtime!.exitCode != 0) {
           status = QuincyRuntimeStatus.failed;
-        } else {
-
-        }
+        } else {}
         if (preStatus != status) {
           for (var element in StatusChangedCallBackList) {
             element(status);
@@ -165,17 +165,16 @@ class Quincy {
     _timer?.cancel();
   }
 
-  start() {}
   stop() async {
-    return runtime?.kill(ProcessSignal.sigterm);
+    return runtime?.kill(ProcessSignal.sigstop);
   }
 
-  restart() {
+  restart() async {
     var res = runtime?.kill(ProcessSignal.sigstop) ?? false;
     // if (!res) {
     //   throw Exception("Failed to kill process");
     // }
-    this.create();
+    await create();
   }
 
   initLogs() {
