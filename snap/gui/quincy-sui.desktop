@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=quincy-sui
+Comment=a Quincy ui client with easy access.
+Exec=quincy-sui
+Icon=${SNAP}/meta/gui/quincy-sui.png # Replace name with your app name.
+Terminal=false
+Type=Application
+Categories=Education; # Adjust accordingly your snap category.
