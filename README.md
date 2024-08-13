@@ -3,12 +3,12 @@
 A quincy client ui
 
 ## Prerequisites
-1. install latest vc++ [下载地址](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#latest-microsoft-visual-c-redistributable-version)
+1. install latest vc++ [Link](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#latest-microsoft-visual-c-redistributable-version)
 
 ## Run
 1. extract all files into local directory.
 2. enter the directory
-3. execute quincy_sui.exe
+3. execute quincy_sui.exe (with admin privilege)
 
 ## Welcome Users to Issues.
 
