@@ -18,7 +18,13 @@ apps:
     command: quincy_sui
     extensions: [gnome] # gnome includes the libraries required by flutter
     plugs:
-    - network
+      - network
+      - home
+      - desktop
+      - network-bind
+      - wayland
+      - x11
+      - network-control
     slots:
       - dbus-quincy-sui
 parts:
