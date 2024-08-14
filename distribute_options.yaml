@@ -1,7 +1,7 @@
 variables:
-  PGYER_API_KEY: "your api key"
+  PGYER_API_KEY: ""
 output: dist/
 releases:
   - name: dev
-    jobs:
+    jobs: []
       
