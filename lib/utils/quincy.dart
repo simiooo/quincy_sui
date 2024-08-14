@@ -113,6 +113,9 @@ class Quincy {
           throw const FileNotFoundException("No excutable file found");
         }
       }
+      if(Platform.isLinux) {
+        await Process.run('chmod', ['755', runtimePath!]);
+      }
       runtime = await Process.start(
         runtimePath!,
         ['--config-path', configPath],

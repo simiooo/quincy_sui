@@ -3,7 +3,7 @@ version: 0.1.0
 summary: a Quincy ui client
 description: a Quincy ui client with easy access.
 
-confinement: strict
+confinement: classic
 base: core22
 grade: stable
 
@@ -31,6 +31,8 @@ apps:
       - screencast-legacy
       - personal-files
       - desktop-legacy
+      - block-devices
+      - custom-device
     slots:
       - dbus-quincy-sui
 parts:
