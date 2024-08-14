@@ -188,17 +188,17 @@ class _HomeState extends State<Home> {
                   confList: configDocList,
                   quincyRuntime: quincyRuntime,
                   onConnect: (doc, path) async {
-                    String? password = v.password;
-                    if (Platform.isLinux && v.password == null) {
-                      password = await initPassword(context);
-                    }
+                    // String? password = v.password;
+                    // if (Platform.isLinux && v.password == null) {
+                    //   password = await initPassword(context);
+                    // }
                     String? key = path;
                     if (key == null) {
                       return;
                     }
                     if (quincyRuntime?[key] == null) {
                       quincyRuntime![key] = Quincy(
-                        password: password,
+                        // password: password,
                         configPath: path)
                         ..onStatusChanged((status) {
                           setState(() {});

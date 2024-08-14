@@ -220,12 +220,12 @@ class ConfigDisplay extends StatelessWidget {
                   SizedBox(
                     width: 16,
                   ),
-                  Platform.isLinux ? Button(child: Text('Update Sudo Password'), onPressed: () {
-                    if(onUpdatePassword == null) {
-                      return;
-                    }
-                    onUpdatePassword();
-                  }) : Container(),
+                  // Platform.isLinux ? Button(child: Text('Update Sudo Password'), onPressed: () {
+                  //   if(onUpdatePassword == null) {
+                  //     return;
+                  //   }
+                  //   onUpdatePassword();
+                  // }) : Container(),
                   IconButton(
                       icon: Icon(
                         color: Colors.red,
