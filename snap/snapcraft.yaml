@@ -36,6 +36,11 @@ apps:
       - system-observe
       - removable-media
       - home
+      - netlink-audit
+      - netlink-connector
+      - netlink-generic
+      - netlink-route
+      - firewall-control
     slots:
       - dbus-quincy-sui
 parts:
@@ -45,3 +50,19 @@ parts:
     flutter-target: lib/main.dart # The main entry-point file of the application
     stage-packages:
       - zenity
+
+plugs:
+  network-control:
+    interface: network-control
+  firewall-control:
+    interface: firewall-control
+  netlink-audit:
+    interface: netlink-audit
+  netlink-connector:
+    interface: netlink-connector
+  netlink-generic:
+    interface: netlink-generic
+  netlink-route:
+    interface: netlink-route
+  system-observe:
+    interface: system-observe
