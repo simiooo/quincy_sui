@@ -27,7 +27,6 @@ apps:
       - unity7
       - network-control
       - gsettings
-      - filesystem-support
     slots:
       - dbus-quincy-sui
 parts:
