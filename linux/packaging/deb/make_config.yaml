@@ -1,0 +1,30 @@
+display_name: Quincy SUI
+package_name: quincy-sui
+maintainer:
+  name: simooowann
+  email: simooowann@gmail.com
+co_authors: []
+priority: optional
+section: x11
+installed_size: 6604
+essential: false
+icon: assets/images/quincy_sui_icon.png
+
+postinstall_scripts: []
+postuninstall_scripts: []
+
+keywords:
+  - Network
+  - Test
+  - Application
+
+generic_name: Network Application
+
+categories:
+  - Network
+
+startup_notify: true
+
+# You can also specify [metainfo](https://freedesktop.org/software/appstream/docs/chap-Quickstart.html) file
+# which contains metadata of the app.
+# metainfo: linux/packaging/myappid.appdata.xml
