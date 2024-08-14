@@ -5,7 +5,7 @@ import 'package:window_manager/window_manager.dart';
 
 Future<void> initSystemTray() async {
   String path =
-      Platform.isWindows ? 'assets/images/Logo@1x.ico' : 'assets/images/Logo@1x.png';
+      Platform.isWindows ? 'assets/images/quincy_sui_icon.ico' : 'assets/images/quincy_sui_icon.png';
 
   final  appWindow = windowManager;
   final SystemTray systemTray = SystemTray();

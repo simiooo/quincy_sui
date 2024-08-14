@@ -5,4 +5,4 @@ Exec=quincy-sui
 Icon=${SNAP}/meta/gui/quincy-sui.png # Replace name with your app name.
 Terminal=false
 Type=Application
-Categories=Education; # Adjust accordingly your snap category.
+Categories=Application; # Adjust accordingly your snap category.

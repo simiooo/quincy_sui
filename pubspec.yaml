@@ -56,6 +56,8 @@ dependencies:
   windows_single_instance: ^1.0.1
   easy_localization: ^3.0.7
   path: ^1.9.0
+  libadwaita: ^2.0.2
+  handy_window: ^0.4.0
 
 dev_dependencies:
   flutter_test:
@@ -68,6 +70,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
   msix: ^3.16.7
+  icons_launcher: ^2.1.7
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
