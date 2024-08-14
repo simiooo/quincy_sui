@@ -40,5 +40,3 @@ parts:
     flutter-target: lib/main.dart # The main entry-point file of the application
     stage-packages:
       - zenity
-      - at-spi2-core
-      - atk
