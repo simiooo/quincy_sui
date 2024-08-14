@@ -125,6 +125,10 @@ class Quincy {
         throw Exception("Failed to start");
       }
     } catch (e) {
+      errorLogs.add(removeAnsiEscapeCodes(e.toString()));
+      for (var cb in logHandlerList) {
+        cb(logs, errorLogs);
+      }
       status = QuincyRuntimeStatus.failed;
     } finally {
       for (var element in StatusChangedCallBackList) {
