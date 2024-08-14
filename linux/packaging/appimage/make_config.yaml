@@ -1,0 +1,31 @@
+display_name: Quincy UI
+
+icon: assets/images/logo.quincy_sui_icon.png
+
+keywords:
+  - Network
+  - Application
+
+generic_name: A high performance Vpn Application
+
+actions:
+
+categories:
+  - Application
+
+startup_notify: true
+
+# You can specify the shared libraries that you want to bundle with your app
+#
+# flutter_distributor automatically detects the shared libraries that your app
+# depends on, but you can also specify them manually here.
+#
+# The following example shows how to bundle the libcurl library with your app.
+#
+# include:
+#   - libcurl.so.4
+include: []
+
+# You can also specify [metainfo](https://freedesktop.org/software/appstream/docs/chap-Quickstart.html) file
+# which contains metadata of the app.
+# metainfo: linux/packaging/myappid.appdata.xml

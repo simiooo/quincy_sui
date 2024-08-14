@@ -120,35 +120,35 @@ class Quincy {
           throw const FileNotFoundException("No excutable file found");
         }
       }
-      // if (Platform.isLinux) {
-      //   if (password == null) {
-      //     throw Exception("Password is empty, please set the password");
-      //   }
-      //   var chmod =
-      //       await Process.start('sudo', ['-S', 'chmod', '755', runtimePath!]);
+      if (Platform.isLinux) {
+        if (password == null) {
+          throw Exception("Password is empty, please set the password");
+        }
+        var chmod =
+            await Process.start('sudo', ['-S', 'chmod', '755', runtimePath!]);
 
-      //   // Close the stdin to indicate end of input
-      //   await chmod.stdin.close();
-      //   initLogs(chmod);
-      //   initErrorLogs(chmod);
+        // Close the stdin to indicate end of input
+        await chmod.stdin.close();
+        initLogs(chmod);
+        initErrorLogs(chmod);
 
-      //   var exitCode = await chmod.exitCode;
-      //   if(exitCode != 0) {
-      //     throw Exception("could not chmod to $runtimePath");
-      //   }
-      //   var runtime = await Process.start(
-      //     "echo",
-      //     [password!,"|",'sudo',"-S", runtimePath!, '--config-path', configPath],
-      //   );
+        var exitCode = await chmod.exitCode;
+        if(exitCode != 0) {
+          throw Exception("could not chmod to $runtimePath");
+        }
+        var runtime = await Process.start(
+          "echo",
+          [password!,"|",'sudo',"-S", runtimePath!, '--config-path', configPath],
+        );
 
-      //   runtime.stdin.writeln(password);
-      //   await runtime.stdin.close();
-      // } else {
+        runtime.stdin.writeln(password);
+        await runtime.stdin.close();
+      } else {
         runtime = await Process.start(
           runtimePath!,
           ['--config-path', configPath],
         );
-      // }
+      }
 
       status = QuincyRuntimeStatus.active;
       initLogs(runtime);
