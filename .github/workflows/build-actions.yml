@@ -1,0 +1,45 @@
+name: Quincy Sui
+run-name: ${{ github.actor }} is building 🚀
+on: [push]
+jobs:
+  Deb-building:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Flutter SDK
+        uses: mobiledevops/flutter-sdk-action@v1.0.0
+        with:
+          flutter-sdk-version:  3.24.0
+      - run: flutter pub get
+      - run: | 
+        dart pub global activate flutter_distributor
+        export PATH="$PATH":"$HOME/.pub-cache/bin"
+        flutter_distributor package --platform linux --targets deb
+  AppImage-building:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Flutter SDK
+        uses: mobiledevops/flutter-sdk-action@v1.0.0
+        with:
+          flutter-sdk-version:  3.24.0
+      - run: flutter pub get
+      - run: | 
+        dart pub global activate flutter_distributor
+        export PATH="$PATH":"$HOME/.pub-cache/bin"
+        apt -y install locate
+        wget -O appimagetool "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
+        chmod +x appimagetool
+        mv appimagetool /usr/local/bin/
+        flutter_distributor package --platform linux --targets deb
+
+  # Windows-building:
+  #   runs-on: windows-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Install Flutter SDK
+  #       uses: mobiledevops/flutter-sdk-action@v1.0.0
+  #       with:
+  #         flutter-sdk-version:  3.24.0
+  #     - run: flutter pub get
+  #     - run: flutter build windows --release

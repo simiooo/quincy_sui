@@ -1,0 +1,21 @@
+icon: assets/images/quincy_sui_icon.png
+summary: A quincy client ui.
+group: Application/Networking
+vendor: simiooo
+packager: simiooo
+packagerEmail: krtirtho@gmail.com
+license: GPLv3
+url: https://github.com/simiooo/quincy_sui
+
+display_name: Quincy SUI
+
+keywords:
+  - Application
+  - Network
+
+generic_name: Quincy SUI
+
+categories:
+  - Network
+
+startup_notify: true
