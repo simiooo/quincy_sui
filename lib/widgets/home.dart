@@ -6,7 +6,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart'
     hide Tooltip, Colors, FilledButton, showDialog;
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:quincy_sui/store/quincy_store.dart';
 import 'package:quincy_sui/utils/quincy.dart';
 import 'package:quincy_sui/utils/wiretConfi.dart';
 import 'package:quincy_sui/widgets/config_menu.dart';
@@ -28,6 +31,7 @@ class _HomeState extends State<Home> {
   Map<String, Quincy?>? quincyRuntime = {};
 
   List<Map<String, dynamic>> configDocList = [];
+  final _formKey = GlobalKey<FormBuilderState>();
 
   @override
   void dispose() {
@@ -95,6 +99,62 @@ class _HomeState extends State<Home> {
     getConfigList();
   }
 
+  Future<String?> initPassword(BuildContext context) async {
+    final result = await showDialog<String>(
+        context: context,
+        builder: (context) => ContentDialog(
+              title: const Text('Init form'),
+              content: FormBuilder(
+                  key: _formKey,
+                  child: Container(
+                    width: MediaQuery.sizeOf(context).width,
+                    height: 140,
+                    child: Column(
+                      children: [
+                        FormBuilderField(
+                            builder: (field) {
+                              return InfoLabel(
+                                label: "Root Password",
+                                child: PasswordBox(
+                                  placeholder: "Enter your root password",
+                                  onChanged: (v) {
+                                    field.didChange(v);
+                                  },
+                                ),
+                              );
+                            },
+                            name: "password")
+                      ],
+                    ),
+                  )),
+              actions: [
+                Button(
+                  child: const Text('cancel'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    // Delete file here
+                  },
+                ),
+                FilledButton(
+                  child: const Text('Confirm'),
+                  onPressed: () {
+                    _formKey.currentState?.saveAndValidate();
+                    Navigator.pop(
+                        context, _formKey.currentState?.value["password"]);
+                  },
+                ),
+              ],
+            ));
+    if (result == null) {
+      return null;
+    }
+    if(!mounted) {
+      return null;
+    }
+    context.read<QuincyStoreCubit>().updatePwd(result);
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -103,73 +163,86 @@ class _HomeState extends State<Home> {
           // decoration: BoxDecoration(color: Colors.white),
           width: MediaQuery.sizeOf(context).width,
           height: MediaQuery.sizeOf(context).height,
-          child: Column(
-            children: [
-              Expanded(
-                  child: ConfigMenu(
-                onDelete: (String path) async {
-                  try {
-                    if (quincyRuntime?[path] != null) {
-                      quincyRuntime?[path]?.stop();
-                      quincyRuntime?.remove(path);
+          child:
+              BlocBuilder<QuincyStoreCubit, QuincyStore>(builder: (context, v) {
+            return Column(
+              children: [
+                Expanded(
+                    child: ConfigMenu(
+                  onUpdatePassword: () {
+                    initPassword(context);
+                  },
+                  onDelete: (String path) async {
+                    try {
+                      if (quincyRuntime?[path] != null) {
+                        quincyRuntime?[path]?.stop();
+                        quincyRuntime?.remove(path);
+                      }
+                      await File(path).delete();
+                      await getConfigList();
+                    } catch (e) {
+                      print(e);
                     }
-                    await File(path).delete();
-                    await getConfigList();
-                  } catch (e) {
-                    print(e);
-                  }
-                },
-                confDir: confDir,
-                confList: configDocList,
-                quincyRuntime: quincyRuntime,
-                onConnect: (doc, path) {
-                  String? key = path;
-                  if (key == null) {
-                    return;
-                  }
-                  if (quincyRuntime?[key] == null) {
-                    quincyRuntime![key] = Quincy(configPath: path)
-                      ..onStatusChanged((status) {
-                        setState(() {});
-                      })
-                      ..onLogChanged((logs, errorLogs) {
-                        setState(() {});
-                      });
-                  } else {
-                    quincyRuntime![key]!.restart();
-                  }
-                },
-                onUpdated: () {
-                  getConfigList();
-                },
-                onChanged: (doc) async {
-                  if (confDir == null) {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return ContentDialog(
-                            title: Text(context.tr('Error')),
-                            content: Text(
-                              context.tr('Configuration directory not found.'),
-                            ),
-                            actions: [
-                              FilledButton(
-                                child: Text(context.tr('Confirm')),
-                                onPressed: () => Navigator.pop(
-                                    context, 'User canceled dialog'),
-                              ),
-                            ],
-                          );
+                  },
+                  confDir: confDir,
+                  confList: configDocList,
+                  quincyRuntime: quincyRuntime,
+                  onConnect: (doc, path) async {
+                    String? password = v.password;
+                    if (Platform.isLinux && v.password == null) {
+                      password = await initPassword(context);
+                    }
+                    String? key = path;
+                    if (key == null) {
+                      return;
+                    }
+                    if (quincyRuntime?[key] == null) {
+                      quincyRuntime![key] = Quincy(
+                        password: password,
+                        configPath: path)
+                        ..onStatusChanged((status) {
+                          setState(() {});
+                        })
+                        ..onLogChanged((logs, errorLogs) {
+                          setState(() {});
                         });
-                    return;
-                  }
-                  var content = doc.toString();
-                  await writeConf(content, confDir);
-                  getConfigList();
-                },
-              ))
-            ],
-          ),
+                    } else {
+                      quincyRuntime![key]!.restart();
+                    }
+                  },
+                  onUpdated: () {
+                    getConfigList();
+                  },
+                  onChanged: (doc) async {
+                    if (confDir == null) {
+                      showDialog(
+                          context: context,
+                          builder: (context) {
+                            return ContentDialog(
+                              title: Text(context.tr('Error')),
+                              content: Text(
+                                context
+                                    .tr('Configuration directory not found.'),
+                              ),
+                              actions: [
+                                FilledButton(
+                                  child: Text(context.tr('Confirm')),
+                                  onPressed: () => Navigator.pop(
+                                      context, 'User canceled dialog'),
+                                ),
+                              ],
+                            );
+                          });
+                      return;
+                    }
+                    var content = doc.toString();
+                    await writeConf(content, confDir);
+                    getConfigList();
+                  },
+                ))
+              ],
+            );
+          }),
         ),
         Positioned(
             top: 0,

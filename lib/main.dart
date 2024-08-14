@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:quincy_sui/store/quincy_store.dart';
 import 'package:quincy_sui/store/theme.dart';
 import 'package:quincy_sui/utils/tray.dart';
 import 'package:quincy_sui/widgets/home.dart';
@@ -78,7 +79,9 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-        providers: [BlocProvider(create: (_) => ThemeModeCubit())],
+        providers: [
+          BlocProvider(create: (_) => QuincyStoreCubit()),
+          BlocProvider(create: (_) => ThemeModeCubit())],
         child: BlocBuilder<ThemeModeCubit, ThemeMode>(builder: (c, v) {
           return FluentApp(
             localizationsDelegates: context.localizationDelegates,

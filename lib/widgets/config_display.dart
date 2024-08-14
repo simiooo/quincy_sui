@@ -1,9 +1,10 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart'
-    hide IconButton, showDialog, Divider, Colors;
+    hide IconButton, showDialog, Divider, Colors,FilledButton;
 import 'package:quincy_sui/utils/quincy.dart';
 import 'package:toml/toml.dart';
 
@@ -11,6 +12,7 @@ class ConfigDisplay extends StatelessWidget {
   Map<String, dynamic> content = {};
   TomlDocument doc;
   void Function(String key)? onDelete;
+  void Function() onUpdatePassword;
   Quincy? runtime;
   String path;
   void Function(TomlDocument doc, String path)? onConnect;
@@ -18,6 +20,7 @@ class ConfigDisplay extends StatelessWidget {
       {Key? key,
       this.runtime,
       this.onDelete,
+      required this.onUpdatePassword,
       required this.content,
       required this.path,
       this.onConnect,
@@ -27,7 +30,7 @@ class ConfigDisplay extends StatelessWidget {
   List<Widget> showButtons(BuildContext context) {
     if (runtime?.status == QuincyRuntimeStatus.stoped) {
       return [
-        Button(
+        FilledButton(
             child: Text(context.tr('连接')),
             onPressed: () {
               if (onConnect == null) {
@@ -57,7 +60,7 @@ class ConfigDisplay extends StatelessWidget {
       ];
     } else if (runtime?.status == QuincyRuntimeStatus.failed) {
       return [
-        Button(
+        FilledButton(
             child: Text(context.tr('重新连接')),
             onPressed: () {
               if (onConnect == null) {
@@ -217,6 +220,12 @@ class ConfigDisplay extends StatelessWidget {
                   SizedBox(
                     width: 16,
                   ),
+                  Platform.isLinux ? Button(child: Text('Update Sudo Password'), onPressed: () {
+                    if(onUpdatePassword == null) {
+                      return;
+                    }
+                    onUpdatePassword();
+                  }) : Container(),
                   IconButton(
                       icon: Icon(
                         color: Colors.red,

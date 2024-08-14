@@ -20,6 +20,7 @@ class Quincy {
   String? runtimePath;
   Timer? _timer;
   String? runtimeName;
+  String? password;
   String configPath;
   int? pid;
   QuincyRuntimeStatus status = QuincyRuntimeStatus.stoped;
@@ -27,14 +28,20 @@ class Quincy {
   List<String> logs = [];
   List<String> errorLogs = [];
 
-  Quincy({this.runtimePath, required this.configPath}) {
+  Quincy({
+    this.runtimePath,
+    required this.configPath,
+    this.password,
+  }) {
     create();
   }
 
   Quincy._createAsync({this.runtimePath, required this.configPath});
 
-  static Future<Quincy> createInstance({runtimePath, required configPath}) async {
-    Quincy component =  Quincy._createAsync(runtimePath: runtimePath, configPath: configPath);
+  static Future<Quincy> createInstance(
+      {runtimePath, required configPath}) async {
+    Quincy component =
+        Quincy._createAsync(runtimePath: runtimePath, configPath: configPath);
     await component.create();
     return component;
   }
@@ -113,16 +120,39 @@ class Quincy {
           throw const FileNotFoundException("No excutable file found");
         }
       }
-      if(Platform.isLinux) {
-        await Process.run('chmod', ['755', runtimePath!]);
+      if (Platform.isLinux) {
+        if (password == null) {
+          throw Exception("Password is empty, please set the password");
+        }
+        var chmod =
+            await Process.start('sudo', ['-S', 'chmod', '755', runtimePath!]);
+
+        // Close the stdin to indicate end of input
+        await chmod.stdin.close();
+        initLogs(chmod);
+        initErrorLogs(chmod);
+
+        var exitCode = await chmod.exitCode;
+        if(exitCode != 0) {
+          throw Exception("could not chmod to $runtimePath");
+        }
+        var runtime = await Process.start(
+          'sudo',
+          ["-S", runtimePath!, '--config-path', configPath],
+        );
+
+        runtime.stdin.writeln(password);
+        await runtime.stdin.close();
+      } else {
+        runtime = await Process.start(
+          runtimePath!,
+          ['--config-path', configPath],
+        );
       }
-      runtime = await Process.start(
-        runtimePath!,
-        ['--config-path', configPath],
-      );
+
       status = QuincyRuntimeStatus.active;
-      initLogs();
-      initErrorLogs();
+      initLogs(runtime);
+      initErrorLogs(runtime);
       pid = runtime!.pid;
       if (await runtime!.exitCode != 0) {
         throw Exception("Failed to start");
@@ -184,7 +214,7 @@ class Quincy {
     await create();
   }
 
-  initLogs() {
+  initLogs(Process? runtime) {
     runtime?.stdout.transform(utf8.decoder).forEach((content) {
       logs.add(removeAnsiEscapeCodes(content));
       for (var cb in logHandlerList) {
@@ -193,7 +223,7 @@ class Quincy {
     });
   }
 
-  initErrorLogs() {
+  initErrorLogs(Process? runtime) {
     runtime?.stderr.transform(utf8.decoder).forEach((content) {
       errorLogs.add(removeAnsiEscapeCodes(content));
       for (var cb in logHandlerList) {

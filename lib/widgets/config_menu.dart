@@ -22,6 +22,7 @@ class ConfigMenu extends StatefulWidget {
   Map<String, Quincy?>? quincyRuntime;
   Directory? confDir;
   void Function(String key)? onDelete;
+  void Function() onUpdatePassword;
   void Function()? onUpdated;
   void Function(TomlDocument doc, String path)? onConnect;
   void Function(TomlDocument doc)? onChanged;
@@ -32,6 +33,7 @@ class ConfigMenu extends StatefulWidget {
       this.confList,
       this.onDelete,
       this.onChanged,
+      required this.onUpdatePassword,
       required this.confDir,
       this.onConnect})
       : super(key: key);
@@ -151,6 +153,7 @@ class _ConfigMenuState extends State<ConfigMenu> with WindowListener {
                               message: (config["doc"] as TomlDocument)
                                   .toMap()["connection_string"],
                               child: ConfigDisplay(
+                                onUpdatePassword: widget.onUpdatePassword,
                                 path: config["path"],
                                 onDelete: widget.onDelete,
                                 runtime: widget.quincyRuntime?[config["path"]],
