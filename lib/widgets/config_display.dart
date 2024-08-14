@@ -4,26 +4,29 @@ import 'dart:math';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart'
-    hide IconButton, showDialog, Divider, Colors,FilledButton;
+    hide IconButton, showDialog, Divider, Colors, FilledButton;
 import 'package:quincy_sui/utils/quincy.dart';
+import 'package:quincy_sui/widgets/config_form.dart';
 import 'package:toml/toml.dart';
 
 class ConfigDisplay extends StatelessWidget {
   Map<String, dynamic> content = {};
   TomlDocument doc;
   void Function(String key)? onDelete;
-  void Function() onUpdatePassword;
   Quincy? runtime;
+  void Function(TomlDocument doc)? onChanged;
   String path;
   void Function(TomlDocument doc, String path)? onConnect;
+  void Function(TomlDocument doc, String path)? onDisconnect;
   ConfigDisplay(
       {Key? key,
       this.runtime,
       this.onDelete,
-      required this.onUpdatePassword,
       required this.content,
       required this.path,
       this.onConnect,
+      this.onChanged,
+      this.onDisconnect,
       required this.doc})
       : super(key: key);
 
@@ -51,12 +54,22 @@ class ConfigDisplay extends StatelessWidget {
               if (runtime == null) {
                 return;
               }
-              runtime?.stop();
+              if (onDisconnect == null) {
+                return;
+              }
+              onDisconnect!(doc, path);
             }),
         SizedBox(
           width: 12,
         ),
-        Button(child: Text(context.tr('编辑')), onPressed: () {}),
+        Button(
+            child: Text(context.tr('编辑')),
+            onPressed: () {
+              if (onChanged == null) {
+                return;
+              }
+              onChanged!(doc);
+            }),
       ];
     } else if (runtime?.status == QuincyRuntimeStatus.failed) {
       return [
@@ -71,7 +84,14 @@ class ConfigDisplay extends StatelessWidget {
         SizedBox(
           width: 12,
         ),
-        Button(child: Text(context.tr('编辑')), onPressed: () {}),
+        Button(
+            child: Text(context.tr('编辑')),
+            onPressed: () {
+              if (onChanged == null) {
+                return;
+              }
+              onChanged!(doc);
+            }),
       ];
     } else {
       return [
@@ -86,7 +106,14 @@ class ConfigDisplay extends StatelessWidget {
         SizedBox(
           width: 12,
         ),
-        Button(child: Text(context.tr('编辑')), onPressed: () {}),
+        Button(
+            child: Text(context.tr('编辑')),
+            onPressed: () {
+              if (onChanged == null) {
+                return;
+              }
+              onChanged!(doc);
+            }),
       ];
     }
   }
@@ -185,12 +212,14 @@ class ConfigDisplay extends StatelessWidget {
               height: 24,
             ),
             SelectableText("${context.tr("认证类型")} : UsersFile"),
-            SelectableText("${context.tr('用户名')} : ${content["authentication"]["username"]}"),
+            SelectableText(
+                "${context.tr('用户名')} : ${content["authentication"]["username"]}"),
             // SelectableText("密码 : ${content["authentication"]["password"]}"),
             SelectableText("${context.tr('密码')} : ********"),
             SelectableText(
-                "${context.tr('信任证书' )}: ${content["authentication"]["trusted_certificates"]}"),
-            SelectableText("${context.tr('路由')} : ${content["network"]["routes"]}"),
+                "${context.tr('信任证书')}: ${content["authentication"]["trusted_certificates"]}"),
+            SelectableText(
+                "${context.tr('路由')} : ${content["network"]["routes"]}"),
             SizedBox(
               height: 16,
             ),
@@ -207,7 +236,8 @@ class ConfigDisplay extends StatelessWidget {
                 "${context.tr('发送帧大小')} : ${content["connection"]["send_buffer_size"]}"),
             SelectableText(
                 "${context.tr('接收帧大小')} : ${content["connection"]["recv_buffer_size"]}"),
-            SelectableText("${context.tr('日志级别')} : ${content["log"]["level"]}"),
+            SelectableText(
+                "${context.tr('日志级别')} : ${content["log"]["level"]}"),
             SizedBox(
               height: 24,
             ),
@@ -220,16 +250,8 @@ class ConfigDisplay extends StatelessWidget {
                   SizedBox(
                     width: 16,
                   ),
-                  // Platform.isLinux ? Button(child: Text('Update Sudo Password'), onPressed: () {
-                  //   if(onUpdatePassword == null) {
-                  //     return;
-                  //   }
-                  //   onUpdatePassword();
-                  // }) : Container(),
                   IconButton(
-                      icon: Icon(
-                        color: Colors.red,
-                        Icons.delete),
+                      icon: Icon(color: Colors.red, Icons.delete),
                       onPressed: () {
                         if (onDelete == null) {
                           return;

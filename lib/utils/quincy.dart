@@ -20,7 +20,6 @@ class Quincy {
   String? runtimePath;
   Timer? _timer;
   String? runtimeName;
-  String? password;
   String configPath;
   int? pid;
   QuincyRuntimeStatus status = QuincyRuntimeStatus.stoped;
@@ -31,7 +30,6 @@ class Quincy {
   Quincy({
     this.runtimePath,
     required this.configPath,
-    this.password,
   }) {
     create();
   }
@@ -120,35 +118,11 @@ class Quincy {
           throw const FileNotFoundException("No excutable file found");
         }
       }
-      // if (Platform.isLinux) {
-      //   if (password == null) {
-      //     throw Exception("Password is empty, please set the password");
-      //   }
-      //   var chmod =
-      //       await Process.start('sudo', ['-S', 'chmod', '755', runtimePath!]);
 
-      //   // Close the stdin to indicate end of input
-      //   await chmod.stdin.close();
-      //   initLogs(chmod);
-      //   initErrorLogs(chmod);
-
-      //   var exitCode = await chmod.exitCode;
-      //   if(exitCode != 0) {
-      //     throw Exception("could not chmod to $runtimePath");
-      //   }
-      //   var runtime = await Process.start(
-      //     "echo",
-      //     [password!,"|",'sudo',"-S", runtimePath!, '--config-path', configPath],
-      //   );
-
-      //   runtime.stdin.writeln(password);
-      //   await runtime.stdin.close();
-      // } else {
         runtime = await Process.start(
           runtimePath!,
           ['--config-path', configPath],
         );
-      // }
 
       status = QuincyRuntimeStatus.active;
       initLogs(runtime);
@@ -203,14 +177,16 @@ class Quincy {
   }
 
   stop() async {
-    return runtime?.kill(ProcessSignal.sigstop);
+    var result = runtime?.kill();
+    logs.add(removeAnsiEscapeCodes("Stop Quincy normally"));
+      for (var cb in logHandlerList) {
+        cb(logs, errorLogs);
+      }
+    return result;
   }
 
   restart() async {
-    var res = runtime?.kill(ProcessSignal.sigstop) ?? false;
-    // if (!res) {
-    //   throw Exception("Failed to kill process");
-    // }
+    var res = stop();
     await create();
   }
 

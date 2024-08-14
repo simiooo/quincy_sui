@@ -17,26 +17,29 @@ import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 import 'package:toml/toml.dart';
 import 'package:window_manager/window_manager.dart';
 
+enum FormSubmitType { create, modify }
+
 class ConfigMenu extends StatefulWidget {
   List<Map<String, dynamic>>? confList;
   Map<String, Quincy?>? quincyRuntime;
   Directory? confDir;
   void Function(String key)? onDelete;
-  void Function() onUpdatePassword;
   void Function()? onUpdated;
   void Function(TomlDocument doc, String path)? onConnect;
-  void Function(TomlDocument doc)? onChanged;
-  ConfigMenu(
-      {Key? key,
-      this.onUpdated,
-      this.quincyRuntime,
-      this.confList,
-      this.onDelete,
-      this.onChanged,
-      required this.onUpdatePassword,
-      required this.confDir,
-      this.onConnect})
-      : super(key: key);
+  void Function(TomlDocument doc, String path)? onDisconnect;
+  void Function(TomlDocument doc, FormSubmitType type, {String? path})?
+      onChanged;
+  ConfigMenu({
+    Key? key,
+    this.onUpdated,
+    this.quincyRuntime,
+    this.confList,
+    this.onDelete,
+    this.onChanged,
+    required this.confDir,
+    this.onConnect,
+    this.onDisconnect,
+  }) : super(key: key);
 
   @override
   _ConfigMenuState createState() => _ConfigMenuState();
@@ -65,15 +68,14 @@ class _ConfigMenuState extends State<ConfigMenu> with WindowListener {
               }
               final reader = item.dataReader!;
               if (true) {
-                
                 reader.getFile(tomlFormat, (file) async {
-                    var content = String.fromCharCodes(await file.readAll());
-                    TomlDocument.parse(content);
-                    await writeConf(content, null);
-                    if(widget.onUpdated == null) {
-                      return;
-                    }
-                    widget.onUpdated!();
+                  var content = String.fromCharCodes(await file.readAll());
+                  TomlDocument.parse(content);
+                  await writeConf(content, null);
+                  if (widget.onUpdated == null) {
+                    return;
+                  }
+                  widget.onUpdated!();
                 }, onError: (error) async {
                   await displayInfoBar(context, builder: (context, close) {
                     return InfoBar(
@@ -119,8 +121,12 @@ class _ConfigMenuState extends State<ConfigMenu> with WindowListener {
                   onTap: () async {
                     final result = await showDialog<String>(
                         context: context,
-                        builder: (context) =>
-                            ConfigForm(onChanged: widget.onChanged));
+                        builder: (context) => ConfigForm(onChanged: (doc) {
+                              if (widget.onChanged == null) {
+                                return;
+                              }
+                              widget.onChanged!(doc, FormSubmitType.create);
+                            }));
                     setState(() {});
                   },
                 ),
@@ -153,12 +159,28 @@ class _ConfigMenuState extends State<ConfigMenu> with WindowListener {
                               message: (config["doc"] as TomlDocument)
                                   .toMap()["connection_string"],
                               child: ConfigDisplay(
-                                onUpdatePassword: widget.onUpdatePassword,
                                 path: config["path"],
+                                onChanged: (_) async {
+                                  final result = await showDialog<String>(
+                                      context: context,
+                                      builder: (context) => ConfigForm(
+                                          initialValue:
+                                              config["doc"] as TomlDocument?,
+                                          onChanged: (doc) {
+                                            if (widget.onChanged == null) {
+                                              return;
+                                            }
+                                            widget.onChanged!(
+                                                doc, FormSubmitType.modify,
+                                                path: config["path"] ?? "");
+                                          }));
+                                  setState(() {});
+                                },
                                 onDelete: widget.onDelete,
                                 runtime: widget.quincyRuntime?[config["path"]],
                                 doc: config["doc"] as TomlDocument,
                                 onConnect: widget.onConnect,
+                                onDisconnect: widget.onDisconnect,
                                 content:
                                     (config["doc"] as TomlDocument).toMap(),
                               ),

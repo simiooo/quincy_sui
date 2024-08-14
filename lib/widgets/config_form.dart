@@ -20,10 +20,14 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:toml/toml.dart';
 
 class ConfigForm extends StatefulWidget {
-  Map<String, dynamic>? initData;
+  TomlDocument? initialValue;
   void Function(TomlDocument doc)? onChanged;
 
-  ConfigForm({Key? key, this.onChanged, this.initData}) : super(key: key);
+  ConfigForm({
+    Key? key,
+    this.onChanged,
+    this.initialValue,
+  }) : super(key: key);
 
   @override
   _ConfigFormState createState() => _ConfigFormState();
@@ -33,6 +37,67 @@ class _ConfigFormState extends State<ConfigForm> {
   String? logLevel = 'info';
   final _formKey = GlobalKey<FormBuilderState>();
   List<File> certPath = [];
+  Map<String, dynamic> _internalValue = {
+    "log_level": "info"
+  };
+  Map<String, TextEditingController?> fieldsController = {
+    "connection_string": TextEditingController(),
+    "username": TextEditingController(),
+    "password": TextEditingController(),
+    "routes": TextEditingController(),
+    "mtu": TextEditingController(),
+    "send_buffer_size": TextEditingController(),
+    "recv_buffer_size": TextEditingController(),
+    // "": TextEditingController(),
+    // "": TextEditingController(),
+  };
+
+  initForm() {
+    var payload = widget.initialValue?.toMap() ?? {};
+    if (widget.initialValue == null) {
+      return;
+    }
+    var value = {
+      "connection_string": payload["connection_string"],
+      "username": payload["authentication"]?["username"],
+      "password": payload["authentication"]?["password"],
+      "trusted_certificates": (payload["authentication"]
+                  ?["trusted_certificates"] as List<dynamic>? ??
+              [])
+          .map<File>((el) {
+        return File(el as String);
+      }).toList(),
+      "mtu": payload["connection"]?["mtu"],
+      "send_buffer_size": payload["connection"]?["send_buffer_size"],
+      "recv_buffer_size": payload["connection"]?["recv_buffer_size"],
+      "routes": (payload["network"]?["routes"] ?? []).join(','),
+      "log_level": payload["log"]?["level"],
+    };
+
+    _internalValue = value;
+    fieldsController.forEach((action, controller) {
+      switch (action) {
+        default:
+          if (controller == null) {
+            return;
+          }
+          controller.text = _internalValue?[action].toString() ?? "";
+      }
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant ConfigForm oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    initForm();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +112,14 @@ class _ConfigFormState extends State<ConfigForm> {
         height: MediaQuery.sizeOf(context).height,
         child: FormBuilder(
           key: _formKey,
+          onChanged: () {
+            _formKey.currentState?.save();
+            _internalValue = _formKey.currentState?.value ?? {};
+            setState(() {
+              
+            });
+          },
+          initialValue: _internalValue,
           child: SingleChildScrollView(
             padding: EdgeInsets.fromLTRB(0, 4, 10, 0),
             child: Column(
@@ -61,6 +134,7 @@ class _ConfigFormState extends State<ConfigForm> {
                     ]),
                     builder: (FormFieldState<dynamic> field) {
                       return TextBox(
+                        controller: fieldsController["connection_string"],
                         onChanged: (value) {
                           field.didChange(value);
                         },
@@ -114,6 +188,7 @@ class _ConfigFormState extends State<ConfigForm> {
                     ]),
                     builder: (FormFieldState<dynamic> field) {
                       return TextBox(
+                        controller: fieldsController["username"],
                         onChanged: (value) {
                           field.didChange(value);
                         },
@@ -139,6 +214,7 @@ class _ConfigFormState extends State<ConfigForm> {
                         onChanged: (value) {
                           field.didChange(value);
                         },
+                        controller: fieldsController["password"],
                         decoration: BoxDecoration(
                           border: field.hasError
                               ? Border.all(color: Colors.red)
@@ -160,9 +236,7 @@ class _ConfigFormState extends State<ConfigForm> {
                           : "";
                     },
                     valueTransformer: ((List<File>? v) {
-                      return v?.map((el) {
-                            return el.path;
-                          }).toList() ??
+                      return v ??
                           [];
                     }),
                     builder: (FormFieldState<dynamic> field) {
@@ -184,17 +258,17 @@ class _ConfigFormState extends State<ConfigForm> {
                             type: FileType.custom,
                             allowedExtensions: ['pem'],
                           );
+                          List<File> files = [];
                           if (result != null) {
-                            List<File> files = result.paths
+                            files = result.paths
                                 .map((path) => File(path!))
                                 .toList();
-                            certPath.addAll(files);
-                            setState(() {});
                           } else {
                             // User canceled the picker
                           }
                           // 处理下载证书的逻辑
-                          field.didChange(certPath);
+                          field.didChange(files);
+                          setState(() {});
                         },
                       );
                     },
@@ -206,7 +280,10 @@ class _ConfigFormState extends State<ConfigForm> {
                 Container(
                   width: MediaQuery.sizeOf(context).width,
                   height: 80,
-                  child: certPath.isEmpty
+                  child: (_internalValue["trusted_certificates"] ==
+                              null ||
+                          _internalValue["trusted_certificates"]!
+                              .isEmpty)
                       ? InfoBar(
                           title: Text(context.tr('暂未获取到证书')),
                           content: Text(context.tr('请手动添加证书')),
@@ -214,7 +291,7 @@ class _ConfigFormState extends State<ConfigForm> {
                           isLong: true,
                         )
                       : ListView.separated(
-                          itemCount: certPath.length,
+                          itemCount: _internalValue["trusted_certificates"]!.length,
                           separatorBuilder: (c, i) {
                             return Container(
                               width: 8,
@@ -231,7 +308,7 @@ class _ConfigFormState extends State<ConfigForm> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(certPath[index]
+                                  Text(_internalValue["trusted_certificates"]![index]
                                       .path
                                       .split(Platform.pathSeparator)
                                       .last),
@@ -245,7 +322,18 @@ class _ConfigFormState extends State<ConfigForm> {
                                           ),
                                           onPressed: () {
                                             setState(() {
-                                              certPath.removeAt(index);
+                                              if (_formKey.currentState ==
+                                                  null) {
+                                                return;
+                                              }
+                                              var value = _internalValue[
+                                                      "trusted_certificates"] ??
+                                                  [];
+                                              value.removeAt(index);
+                                              _formKey.currentState!
+                                                  .patchValue({
+                                                "trusted_certificates": value
+                                              });
                                             });
                                           })
                                     ],
@@ -275,6 +363,7 @@ class _ConfigFormState extends State<ConfigForm> {
                     ]),
                     builder: (FormFieldState<dynamic> field) {
                       return TextBox(
+                        controller: fieldsController["routes"],
                         onChanged: (value) {
                           field.didChange(value);
                         },
@@ -305,6 +394,7 @@ class _ConfigFormState extends State<ConfigForm> {
                     name: 'mtu',
                     builder: (FormFieldState<dynamic> field) {
                       return TextBox(
+                        controller: fieldsController["mtu"],
                         onChanged: (value) {
                           field.didChange(value);
                         },
@@ -362,6 +452,7 @@ class _ConfigFormState extends State<ConfigForm> {
                     name: 'send_buffer_size',
                     builder: (FormFieldState<dynamic> field) {
                       return TextBox(
+                        controller: fieldsController["send_buffer_size"],
                         onChanged: (value) {
                           field.didChange(value);
                         },
@@ -381,6 +472,7 @@ class _ConfigFormState extends State<ConfigForm> {
                     name: 'recv_buffer_size',
                     builder: (FormFieldState<dynamic> field) {
                       return TextBox(
+                        controller: fieldsController["recv_buffer_size"],
                         onChanged: (value) {
                           field.didChange(value);
                         },
@@ -450,7 +542,8 @@ class _ConfigFormState extends State<ConfigForm> {
                   "authentication": {
                     "username": payload["username"] ?? "",
                     "password": payload["password"] ?? "",
-                    "trusted_certificates": payload["trusted_certificates"] ?? "",
+                    "trusted_certificates":
+                        (payload["trusted_certificates"] as List<File>? ?? []).map((File el) => el.path).toList(),
                   },
                   "connection": {
                     "mtu": payload["mtu"] ?? 1400,
@@ -474,9 +567,12 @@ class _ConfigFormState extends State<ConfigForm> {
                         title: Text(context.tr('错误')),
                         content: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: _formKey.currentState?.errors?.entries?.map((e) {
-                          return Text("${e.key}: ${e.value}");
-                        }).toList() ?? [],) ,
+                          children:
+                              _formKey.currentState?.errors?.entries?.map((e) {
+                                    return Text("${e.key}: ${e.value}");
+                                  }).toList() ??
+                                  [],
+                        ),
                         actions: [
                           FilledButton(
                             child: Text(context.tr('了解')),

@@ -99,6 +99,7 @@ class _HomeState extends State<Home> {
     getConfigList();
   }
 
+  @deprecated
   Future<String?> initPassword(BuildContext context) async {
     final result = await showDialog<String>(
         context: context,
@@ -148,10 +149,9 @@ class _HomeState extends State<Home> {
     if (result == null) {
       return null;
     }
-    if(!mounted) {
+    if (!mounted) {
       return null;
     }
-    context.read<QuincyStoreCubit>().updatePwd(result);
     return result;
   }
 
@@ -163,86 +163,88 @@ class _HomeState extends State<Home> {
           // decoration: BoxDecoration(color: Colors.white),
           width: MediaQuery.sizeOf(context).width,
           height: MediaQuery.sizeOf(context).height,
-          child:
-              BlocBuilder<QuincyStoreCubit, QuincyStore>(builder: (context, v) {
-            return Column(
-              children: [
-                Expanded(
-                    child: ConfigMenu(
-                  onUpdatePassword: () {
-                    initPassword(context);
-                  },
-                  onDelete: (String path) async {
-                    try {
-                      if (quincyRuntime?[path] != null) {
-                        quincyRuntime?[path]?.stop();
-                        quincyRuntime?.remove(path);
-                      }
-                      await File(path).delete();
-                      await getConfigList();
-                    } catch (e) {
-                      print(e);
+          child: Column(
+            children: [
+              Expanded(
+                  child: ConfigMenu(
+                onDelete: (String path) async {
+                  try {
+                    if (quincyRuntime?[path] != null) {
+                      quincyRuntime?[path]?.stop();
+                      quincyRuntime?.remove(path);
                     }
-                  },
-                  confDir: confDir,
-                  confList: configDocList,
-                  quincyRuntime: quincyRuntime,
-                  onConnect: (doc, path) async {
-                    // String? password = v.password;
-                    // if (Platform.isLinux && v.password == null) {
-                    //   password = await initPassword(context);
-                    // }
-                    String? key = path;
-                    if (key == null) {
-                      return;
-                    }
-                    if (quincyRuntime?[key] == null) {
-                      quincyRuntime![key] = Quincy(
-                        // password: password,
-                        configPath: path)
-                        ..onStatusChanged((status) {
-                          setState(() {});
-                        })
-                        ..onLogChanged((logs, errorLogs) {
-                          setState(() {});
-                        });
-                    } else {
-                      quincyRuntime![key]!.restart();
-                    }
-                  },
-                  onUpdated: () {
-                    getConfigList();
-                  },
-                  onChanged: (doc) async {
-                    if (confDir == null) {
-                      showDialog(
-                          context: context,
-                          builder: (context) {
-                            return ContentDialog(
-                              title: Text(context.tr('Error')),
-                              content: Text(
-                                context
-                                    .tr('Configuration directory not found.'),
+                    await File(path).delete();
+                    await getConfigList();
+                  } catch (e) {
+                    print(e);
+                  }
+                },
+                confDir: confDir,
+                confList: configDocList,
+                quincyRuntime: quincyRuntime,
+                onDisconnect: (doc, path) {
+                  String? key = path;
+                  if (key == null) {
+                    return;
+                  }
+                  if (quincyRuntime?[key] == null) {
+                    return;
+                  }
+                  quincyRuntime![key]!.stop();
+                },
+                onConnect: (doc, path) async {
+                  String? key = path;
+                  if (key == null) {
+                    return;
+                  }
+                  if (quincyRuntime?[key] == null) {
+                    quincyRuntime![key] = Quincy(configPath: path)
+                      ..onStatusChanged((status) {
+                        setState(() {});
+                      })
+                      ..onLogChanged((logs, errorLogs) {
+                        setState(() {});
+                      });
+                  } else {
+                    quincyRuntime![key]!.restart();
+                  }
+                },
+                onUpdated: () {
+                  getConfigList();
+                },
+                onChanged: (doc, type, {path}) async {
+                  if (confDir == null) {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return ContentDialog(
+                            title: Text(context.tr('Error')),
+                            content: Text(
+                              context.tr('Configuration directory not found.'),
+                            ),
+                            actions: [
+                              FilledButton(
+                                child: Text(context.tr('Confirm')),
+                                onPressed: () => Navigator.pop(
+                                    context, 'User canceled dialog'),
                               ),
-                              actions: [
-                                FilledButton(
-                                  child: Text(context.tr('Confirm')),
-                                  onPressed: () => Navigator.pop(
-                                      context, 'User canceled dialog'),
-                                ),
-                              ],
-                            );
-                          });
-                      return;
-                    }
-                    var content = doc.toString();
+                            ],
+                          );
+                        });
+                    return;
+                  }
+                  var content = doc.toString();
+                  if (type == FormSubmitType.modify && path != null) {
+                    await File(path).writeAsString(content);
+                  } else {
                     await writeConf(content, confDir);
-                    getConfigList();
-                  },
-                ))
-              ],
-            );
-          }),
+                  }
+
+                  getConfigList();
+                },
+              ))
+            ],
+          ),
         ),
         Positioned(
             top: 0,
