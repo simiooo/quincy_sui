@@ -31,14 +31,14 @@ jobs:
           flutter-sdk-version:  3.24.0
       - run: flutter pub get
       - run: | 
-        dart pub global activate flutter_distributor
-        export PATH="$PATH":"$HOME/.pub-cache/bin"
-        apt -y install locate
-        wget -O appimagetool "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
-        chmod +x appimagetool
-        mv appimagetool /usr/local/bin/
-        artifact_path=$(flutter_distributor package --platform linux --targets deb | tail -n 1 | awk -F ' ' '{ print $3 }')
-        echo "ARTIFACT_PATH=$artifact_path" >> GITHUB_ENV
+          dart pub global activate flutter_distributor
+          export PATH="$PATH":"$HOME/.pub-cache/bin"
+          apt -y install locate
+          wget -O appimagetool "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
+          chmod +x appimagetool
+          mv appimagetool /usr/local/bin/
+          artifact_path=$(flutter_distributor package --platform linux --targets deb | tail -n 1 | awk -F ' ' '{ print $3 }')
+          echo "ARTIFACT_PATH=$artifact_path" >> GITHUB_ENV
       - uses: actions/upload-artifact@v4
         with:
           name: quincy-sui-linux-x86_64.AppImage
