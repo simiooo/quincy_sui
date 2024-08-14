@@ -1,6 +1,6 @@
 # quincy_sui
 
-A quincy client ui
+A quincy client ui. This is client. If you are looking for server side quincy ,here is the link: https://github.com/M0dEx/quincy . Quincy is high performance, highly secure and quic-based vpn software (incldue client and server) . This project make client-side usage much easy.
 
 ## Prerequisites
 ### windows
