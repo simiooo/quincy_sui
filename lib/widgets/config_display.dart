@@ -130,75 +130,81 @@ class ConfigDisplay extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                SelectableText(
-                  "${context.tr("连接串")} : ${content["connection_string"]}",
-                  style: TextStyle(fontSize: 24),
-                ),
-                SizedBox(
-                  width: 16,
-                ),
-                Badge(
-                  isLabelVisible: runtime?.status == QuincyRuntimeStatus.failed,
-                  child: Button(
-                      child: Text(context.tr('日志')),
-                      onPressed: () async {
-                        // print(runtime);
-                        await showDialog(
-                            context: context,
-                            builder: (context) {
-                              return ContentDialog(
-                                constraints: BoxConstraints(
-                                    maxWidth: MediaQuery.sizeOf(context).width),
-                                title: Text(context.tr('日志')),
-                                actions: [
-                                  Button(
-                                      child: Text(context.tr('了解')),
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      })
-                                ],
-                                content: Container(
-                                  width: MediaQuery.sizeOf(context).width,
-                                  height: MediaQuery.sizeOf(context).height,
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: ListView.builder(
-                                            padding: EdgeInsets.fromLTRB(
-                                                0, 0, 10, 0),
-                                            itemCount:
-                                                (runtime?.logs.length ?? 0),
-                                            itemBuilder: (c, i) {
-                                              return Text(
-                                                  runtime?.logs?[i] ?? "-");
-                                            }),
-                                      ),
-                                      SizedBox(
-                                        width: 24,
-                                      ),
-                                      Expanded(
-                                        child: ListView.builder(
-                                            padding: EdgeInsets.fromLTRB(
-                                                0, 0, 10, 0),
-                                            itemCount:
-                                                (runtime?.errorLogs.length ??
-                                                    0),
-                                            itemBuilder: (c, i) {
-                                              return Text(
-                                                  runtime?.errorLogs?[i] ??
-                                                      "-");
-                                            }),
-                                      ),
-                                    ],
+            Container(
+              child: Row(
+                // crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  
+                  SelectableText(
+                    "${content["connection_string"]}",
+                    style: TextStyle(fontSize: 24, overflow: TextOverflow.ellipsis),
+                  ),
+                  SizedBox(
+                    width: 16,
+                  ),
+                  Badge(
+                    isLabelVisible:
+                        runtime?.status == QuincyRuntimeStatus.failed,
+                    child: Button(
+                        child: Text(context.tr('日志')),
+                        onPressed: () async {
+                          // print(runtime);
+                          await showDialog(
+                              context: context,
+                              builder: (context) {
+                                return ContentDialog(
+                                  constraints: BoxConstraints(
+                                      maxWidth:
+                                          MediaQuery.sizeOf(context).width),
+                                  title: Text(context.tr('日志')),
+                                  actions: [
+                                    Button(
+                                        child: Text(context.tr('了解')),
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        })
+                                  ],
+                                  content: Container(
+                                    width: MediaQuery.sizeOf(context).width,
+                                    height: MediaQuery.sizeOf(context).height,
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: ListView.builder(
+                                              padding: EdgeInsets.fromLTRB(
+                                                  0, 0, 10, 0),
+                                              itemCount:
+                                                  (runtime?.logs.length ?? 0),
+                                              itemBuilder: (c, i) {
+                                                return Text(
+                                                    runtime?.logs?[i] ?? "-");
+                                              }),
+                                        ),
+                                        SizedBox(
+                                          width: 24,
+                                        ),
+                                        Expanded(
+                                          child: ListView.builder(
+                                              padding: EdgeInsets.fromLTRB(
+                                                  0, 0, 10, 0),
+                                              itemCount:
+                                                  (runtime?.errorLogs.length ??
+                                                      0),
+                                              itemBuilder: (c, i) {
+                                                return Text(
+                                                    runtime?.errorLogs?[i] ??
+                                                        "-");
+                                              }),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              );
-                            });
-                      }),
-                ),
-              ],
+                                );
+                              });
+                        }),
+                  ),
+                ],
+              ),
             ),
             runtime?.status == QuincyRuntimeStatus.active
                 ? Icon(

@@ -67,9 +67,9 @@ class _ConfigFormState extends State<ConfigForm> {
           .map<File>((el) {
         return File(el as String);
       }).toList(),
-      "mtu": payload["connection"]?["mtu"],
-      "send_buffer_size": payload["connection"]?["send_buffer_size"],
-      "recv_buffer_size": payload["connection"]?["recv_buffer_size"],
+      "mtu": (payload["connection"]?["mtu"] is int) ? (payload["connection"]?["mtu"].toString()) : payload["connection"]?["mtu"],
+      "send_buffer_size": (payload["connection"]?["send_buffer_size"] is int) ? (payload["connection"]?["send_buffer_size"].toString()) : payload["connection"]?["send_buffer_size"],
+      "recv_buffer_size": (payload["connection"]?["recv_buffer_size"] is int) ? (payload["connection"]?["recv_buffer_size"].toString()) : payload["connection"]?["recv_buffer_size"],
       "routes": (payload["network"]?["routes"] ?? []).join(','),
       "log_level": payload["log"]?["level"],
     };
@@ -392,6 +392,10 @@ class _ConfigFormState extends State<ConfigForm> {
                   label: 'Enter MTU:',
                   child: FormBuilderField(
                     name: 'mtu',
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.integer(),
+                      FormBuilderValidators.max(0x1000),
+                    ]),
                     builder: (FormFieldState<dynamic> field) {
                       return TextBox(
                         controller: fieldsController["mtu"],
@@ -448,8 +452,12 @@ class _ConfigFormState extends State<ConfigForm> {
                 // ),
                 InfoLabel(
                   label: 'Enter send_buffer_size:',
-                  child: FormBuilderField(
+                  child: FormBuilderField<String>(
                     name: 'send_buffer_size',
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.integer(),
+                      
+                    ]),
                     builder: (FormFieldState<dynamic> field) {
                       return TextBox(
                         controller: fieldsController["send_buffer_size"],
@@ -468,7 +476,7 @@ class _ConfigFormState extends State<ConfigForm> {
                 ),
                 InfoLabel(
                   label: 'Enter recv_buffer_size:',
-                  child: FormBuilderField(
+                  child: FormBuilderField<String>(
                     name: 'recv_buffer_size',
                     builder: (FormFieldState<dynamic> field) {
                       return TextBox(
@@ -546,11 +554,11 @@ class _ConfigFormState extends State<ConfigForm> {
                         (payload["trusted_certificates"] as List<File>? ?? []).map((File el) => el.path).toList(),
                   },
                   "connection": {
-                    "mtu": payload["mtu"] ?? 1400,
+                    "mtu": (payload["mtu"] != null && payload["mtu"] is String) ? int.parse(payload["mtu"]) : 1400,
                     // "connection_timeout": payload["connection_timeout"] ?? "30s",
                     // "keep_alive_interval": payload["keep_alive_interval"] ?? "25s",
-                    "send_buffer_size": payload["send_buffer_size"] ?? 2097152,
-                    "recv_buffer_size": payload["recv_buffer_size"] ?? 2097152,
+                    "send_buffer_size": (payload["send_buffer_size"] != null && payload["send_buffer_size"] is String) ? int.parse(payload["send_buffer_size"]) : 2097152,
+                    "recv_buffer_size": (payload["recv_buffer_size"] != null && payload["recv_buffer_size"] is String) ? int.parse(payload["recv_buffer_size"]) : 2097152,
                   },
                   "network": {
                     "routes": payload["routes"],

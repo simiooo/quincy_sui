@@ -49,6 +49,7 @@ class ConfigMenu extends StatefulWidget {
 class _ConfigMenuState extends State<ConfigMenu> with WindowListener {
   int? topIndex;
   PaneDisplayMode displayMode = PaneDisplayMode.compact;
+  bool isDroping = false;
 
   @override
   Widget build(BuildContext context) {
@@ -61,12 +62,27 @@ class _ConfigMenuState extends State<ConfigMenu> with WindowListener {
           onDropOver: (event) {
             return DropOperation.copy;
           },
+          onDropEnded: (_) {
+            isDroping = false;
+            setState(() {});
+          },
+          onDropLeave: (_) {
+            isDroping = false;
+            setState(() {});
+          },
+          onDropEnter: (_) {
+            print("start drop");
+            setState(() {
+              isDroping = true;
+            });
+          },
           onPerformDrop: (event) async {
             final items = event.session.items;
             for (var item in items) {
               if (item.dataReader == null) {
                 return;
               }
+
               final reader = item.dataReader!;
               if (true) {
                 reader.getFile(tomlFormat, (file) async {
@@ -93,7 +109,7 @@ class _ConfigMenuState extends State<ConfigMenu> with WindowListener {
               }
             }
           },
-          child: NavigationView(
+          child: isDroping ? Acrylic(child: Text("ok"),) : NavigationView(
             appBar: NavigationAppBar(
                 title: InkWell(
                   onTapDown: (detail) {
