@@ -1,11 +1,15 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive/hive.dart';
+import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:quincy_sui/store/quincy_store.dart';
 import 'package:quincy_sui/store/theme.dart';
+import 'package:quincy_sui/utils/startup.dart';
 import 'package:quincy_sui/utils/tray.dart';
 import 'package:quincy_sui/widgets/home.dart';
 import 'package:super_clipboard/super_clipboard.dart';
@@ -25,10 +29,18 @@ void main(args) async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await EasyLocalization.ensureInitialized();
+
+  launchAtStartup.setup(
+    appName: "Quincy SUI",
+    appPath: Platform.resolvedExecutable,
+    // Set packageName parameter to support MSIX.
+    packageName: 'top.squirrelso.networks.quincySui',
+  );
+
+  initialStartup();
+
   await WindowsSingleInstance.ensureSingleInstance(args, "quincy_sui_instance",
-      onSecondWindow: (args) {
-    print(args);
-  });
+      onSecondWindow: (args) {});
   // Must add this line.
   await windowManager.ensureInitialized();
   initSystemTray();
@@ -81,7 +93,8 @@ class _MyAppState extends State<MyApp> {
     return MultiBlocProvider(
         providers: [
           BlocProvider(create: (_) => QuincyStoreCubit()),
-          BlocProvider(create: (_) => ThemeModeCubit())],
+          BlocProvider(create: (_) => ThemeModeCubit())
+        ],
         child: BlocBuilder<ThemeModeCubit, ThemeMode>(builder: (c, v) {
           return FluentApp(
             localizationsDelegates: context.localizationDelegates,

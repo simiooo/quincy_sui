@@ -11,6 +11,7 @@ import 'package:quincy_sui/utils/quincy.dart';
 import 'package:quincy_sui/utils/wiretConfi.dart';
 import 'package:quincy_sui/widgets/config_display.dart';
 import 'package:quincy_sui/widgets/config_form.dart';
+import 'package:quincy_sui/widgets/setting.dart';
 import 'package:quincy_sui/widgets/window_control.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 import 'package:super_drag_and_drop/super_drag_and_drop.dart';
@@ -111,8 +112,7 @@ class _ConfigMenuState extends State<ConfigMenu> with WindowListener {
                   icon: const Icon(FluentIcons.settings),
                   title: Text(context.tr('Settings')),
                   body: Container(
-                    padding: EdgeInsets.symmetric(vertical: 20, horizontal: 40),
-                    child: Text("Config path is in ${widget.confDir ?? "-"}"),
+                    child: Setting(),
                   ),
                 ),
                 PaneItemAction(
